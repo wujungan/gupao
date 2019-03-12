@@ -22,5 +22,7 @@ public class InnerClassSingleton {
 
     public static void main(String[] args) {
         InnerClassSingleton instance = InnerClassSingleton.getInstance();
+        InnerClassSingleton instance1 = InnerClassSingleton.getInstance();
+        System.out.println(instance==instance1);
     }
 }
