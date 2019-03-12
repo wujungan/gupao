@@ -3,6 +3,7 @@ package com.gupao.wjg.test;
 import com.gupao.wjg.hungerSingleton.HungerSingletonFour;
 import com.gupao.wjg.hungerSingleton.HungerSingletonOne;
 import com.gupao.wjg.hungerSingleton.HungerSingletonThree;
+import com.gupao.wjg.registerSingleton.EnumSingleton;
 
 import java.io.*;
 import java.lang.reflect.Constructor;
@@ -78,11 +79,29 @@ public class DamageSinletonTest {
         }
     }
 
+    /**
+     * 底层已经有防止反序列化侵入
+     */
+    public void disEnumSerializable(){
+        try {
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(new File("enumSingleton.obj")));
+            EnumSingleton enumSingleton=EnumSingleton.WEIXIN;
+            objectOutputStream.writeObject(enumSingleton);
+            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(new File("enumSingleton.obj")));
+            Object o = objectInputStream.readObject();
+            System.out.println(o==enumSingleton);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public static void main(String[] args) {
         DamageSinletonTest test=new DamageSinletonTest();
        // test.reflection();
        // test.serializable();
        // test.disReflection();
-        test.disSerializable();//返回true
+       // test.disSerializable();//返回true
+        test.disEnumSerializable();
     }
 }
