@@ -1,4 +1,4 @@
-package com.gupao.wjg.dynamicProxy.dynamicJDKProxy;
+package com.gupao.wjg.dynamicProxy.gpProxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -7,10 +7,10 @@ import java.lang.reflect.Proxy;
 /**
  * z置业公司代理类JDK动态代理
  */
-public class RealEstateCompany implements InvocationHandler {
+public class GpRealEstateCompany implements GpInvocationHandler {
    private Object person;
 
-    public RealEstateCompany(Object person) {
+    public GpRealEstateCompany(Object person) {
         this.person = person ;
     }
 
@@ -32,6 +32,6 @@ public class RealEstateCompany implements InvocationHandler {
     }
 
     public Object getInstance(){
-        return  Proxy.newProxyInstance(person.getClass().getClassLoader(), person.getClass().getInterfaces(), this);
+        return  GpProxy.newProxyInstance(new GpClassLoader(), person.getClass().getInterfaces(), this);
     }
 }

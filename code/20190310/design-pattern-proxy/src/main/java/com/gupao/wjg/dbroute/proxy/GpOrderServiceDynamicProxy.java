@@ -2,6 +2,9 @@ package com.gupao.wjg.dbroute.proxy;
 
 import com.gupao.wjg.dbroute.db.DynamicDataSourceEntity;
 import com.gupao.wjg.dbroute.service.IOrderService;
+import com.gupao.wjg.dynamicProxy.gpProxy.GpClassLoader;
+import com.gupao.wjg.dynamicProxy.gpProxy.GpInvocationHandler;
+import com.gupao.wjg.dynamicProxy.gpProxy.GpProxy;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -10,15 +13,15 @@ import java.lang.reflect.Proxy;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class OrderServiceDynamicProxy implements InvocationHandler {
+public class GpOrderServiceDynamicProxy implements GpInvocationHandler {
     private Object target;
 
-    public OrderServiceDynamicProxy(Object target) {
+    public GpOrderServiceDynamicProxy(Object target) {
         this.target = target;
     }
 
     public Object  getInstance(){
-        return Proxy.newProxyInstance(target.getClass().getClassLoader(),target.getClass().getInterfaces(),this);
+        return GpProxy.newProxyInstance(new GpClassLoader(),target.getClass().getInterfaces(),this);
     }
 
     @Override
