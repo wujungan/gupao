@@ -17,5 +17,12 @@ public class GpProxyTest {
         GpPerson  instance =(GpPerson) realEstateCompany.getInstance();
         Book book=new Book();book.setName("JAVA");
         instance.study(book);
+
+        GpEmplyee e=(GpEmplyee)realEstateCompany.getInstance();
+        e.work("JAVA");
+
+
+        //instance.work("JAVA");
+
     }
 }

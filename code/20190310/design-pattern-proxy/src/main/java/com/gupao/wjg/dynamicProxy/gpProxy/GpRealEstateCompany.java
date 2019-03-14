@@ -8,17 +8,17 @@ import java.lang.reflect.Proxy;
  * z置业公司代理类JDK动态代理
  */
 public class GpRealEstateCompany implements GpInvocationHandler {
-   private Object person;
+   private Object target;
 
-    public GpRealEstateCompany(Object person) {
-        this.person = person ;
+    public GpRealEstateCompany(Object target) {
+        this.target = target ;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         doBefore();
-        Object invoke = method.invoke(person, args);
-        doAfter();
+        Object invoke = method.invoke(target, args);
+        doAfter(target);
         return invoke;
     }
 
@@ -26,12 +26,13 @@ public class GpRealEstateCompany implements GpInvocationHandler {
         System.out.println("发布广告");
     }
 
-    private void doAfter() {
-        System.out.println("寻找合适房源");
-        System.out.println("代客看房");
+    private void doAfter(Object target) {
+
+        System.out.println("寻找合适工作");
+        System.out.println("合适入职");
     }
 
     public Object getInstance(){
-        return  GpProxy.newProxyInstance(new GpClassLoader(), person.getClass().getInterfaces(), this);
+        return  GpProxyMulInterface.newProxyInstance(new GpClassLoader(), target.getClass().getInterfaces(), this);
     }
 }
