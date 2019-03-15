@@ -31,7 +31,7 @@ public class PayDelegate {
         payMap.put(PayType.JUHE.getCode(),ccbPayService);
     }
 
-    public PayDelegate getInstance(){
+    public static PayDelegate getInstance(){
         return new PayDelegate();
     }
 
