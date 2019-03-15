@@ -23,12 +23,16 @@ public class PayDelegate {
 
     private static Map<String, IPayService> payMap=new ConcurrentHashMap<String ,IPayService>();
 
-    public PayDelegate() {
+    private PayDelegate() {
         payMap.put(PayType.WEIXIN.getCode(),weiPayService);
         payMap.put(PayType.ALIPAYDIRECT.getCode(),directAlipayService);
         payMap.put(PayType.ALIPAYWAP.getCode(),wapAlipayService);
         payMap.put(PayType.LONG.getCode(),ccbPayService);
         payMap.put(PayType.JUHE.getCode(),ccbPayService);
+    }
+
+    public PayDelegate getInstance(){
+        return new PayDelegate();
     }
 
     public String prePay(PayParamVo vo, PayType payType){
@@ -44,7 +48,7 @@ public class PayDelegate {
         }
     }
 
-    public String faield(String msg){
+    private String faield(String msg){
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("code",400);
         jsonObject.put("msg",msg);
