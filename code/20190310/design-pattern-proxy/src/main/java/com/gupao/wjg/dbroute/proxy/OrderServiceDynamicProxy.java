@@ -11,20 +11,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class OrderServiceDynamicProxy implements InvocationHandler {
-    private IOrderService orderService;
+    private Object target;
 
-    public OrderServiceDynamicProxy(IOrderService orderService) {
-        this.orderService = orderService;
+    public OrderServiceDynamicProxy(Object target) {
+        this.target = target;
     }
 
     public Object  getInstance(){
-        return Proxy.newProxyInstance(orderService.getClass().getClassLoader(),orderService.getClass().getInterfaces(),this);
+        return Proxy.newProxyInstance(target.getClass().getClassLoader(),target.getClass().getInterfaces(),this);
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         doBefore(args);
-        Object invoke = method.invoke(orderService, args);
+        Object invoke = method.invoke(target, args);
         doAfter(args);
         return invoke;
     }
