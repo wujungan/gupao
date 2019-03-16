@@ -8,9 +8,9 @@ import java.lang.reflect.Proxy;
  * z置业公司代理类JDK动态代理
  */
 public class RealEstateCompany implements InvocationHandler {
-   private Person person;
+   private Object person;
 
-    public RealEstateCompany(Person person) {
+    public RealEstateCompany(Object person) {
         this.person = person ;
     }
 

@@ -3,25 +3,25 @@ package com.gupao.wjg.dynamicProxy.gpProxy;
 import javax.tools.JavaCompiler;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
-import javax.xml.crypto.dsig.keyinfo.PGPData;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GpProxy {
+/**
+ * 自定义代理类，支持多接口
+ */
+public class GpProxyMulInterface {
 
     public static final String ln = "\r\n";
 
     private GpInvocationHandler h;
 
-    public GpProxy(GpInvocationHandler h) {
+    public GpProxyMulInterface(GpInvocationHandler h) {
         this.h = h;
     }
 
@@ -34,7 +34,7 @@ public class GpProxy {
         //1、动态生成源代码.java文件
         String src = createSrc(interfaces);
         //  //2、Java文件输出磁盘
-        String path = GpProxy.class.getResource("").getPath();
+        String path = GpProxyMulInterface.class.getResource("").getPath();
         File file = new File(path + "$proxy0.java");
 
         FileWriter out = null;
@@ -74,60 +74,83 @@ public class GpProxy {
         if (interfaces == null || interfaces.length == 0) {
             throw new IllegalArgumentException("必须实现接口");
         }
+        if(interfaces.length > 65535){
+            throw new IllegalArgumentException("interface limit exceeded");
+
+        }
 
         StringBuffer sb = new StringBuffer();
-        Class<?> clazz = interfaces[0];
-        String name = clazz.getName();
-        String packageName = GpProxy.class.getPackage().getName();
+        String packageName = GpProxyMulInterface.class.getPackage().getName();
         sb.append("package " + packageName + ";" + ln);
-        sb.append("import " + name + ";" + ln);
+       // sb.append("import " + name + ";" + ln);
         sb.append("import java.lang.reflect.*;" + ln);
-        sb.append("public  class $proxy0  implements " + clazz.getSimpleName() + "{" + ln);
 
-        Method[] declaredMethods = clazz.getDeclaredMethods();
 
-        for (int j = 0; j < declaredMethods.length; j++) {
-            sb.append("private static Method m" + j + ";" + ln);
+        StringBuffer interfacesBuf=new StringBuffer();
+        for(int i=0;i<interfaces.length;i++){
+            Class<?> anInterface = interfaces[i];
+            interfacesBuf.append(anInterface.getName()+",");
+        }
+        String substring = interfacesBuf.substring(0, interfacesBuf.length() - 1);
+
+        sb.append("public  class $proxy0  implements " + substring + "{" + ln);
+
+
+        int  y=0;
+        for(int i=0;i<interfaces.length;i++){
+            Class<?> clazz = interfaces[i];
+            Method[] declaredMethods = clazz.getDeclaredMethods();
+            for (int j = 0; j < declaredMethods.length; j++) {
+                sb.append("private static Method m" + y + ";" + ln);
+                y++;
+            }
         }
         sb.append("static{" + ln);
         sb.append("try{" + ln);
+        y=0;
+        for(int i=0;i<interfaces.length;i++){
+            Class<?> clazz = interfaces[i];
+            String name = clazz.getName();
+            Method[] declaredMethods = clazz.getDeclaredMethods();
+            for (int x = 0;x < declaredMethods.length; x++) {
+                Method declaredMethod = declaredMethods[x];
+                String methodName = declaredMethod.getName();
 
+                Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
+                StringBuffer paramNames = new StringBuffer();
 
-        for (int i = 0; i < declaredMethods.length; i++) {
-            Method declaredMethod = declaredMethods[i];
-            String methodName = declaredMethod.getName();
+                for (int j = 0; j < parameterTypes.length; j++) {
+                    Class<?> parameterType = parameterTypes[j];
+                    String type = parameterType.getName();
+                    String typeName = toLowerFirstCase(parameterType.getSimpleName());
+                    paramNames.append(type);
 
-            Class<?>[] parameterTypes = declaredMethod.getParameterTypes();
-            StringBuffer paramNames = new StringBuffer();
-
-            for (int j = 0; j < parameterTypes.length; j++) {
-                Class<?> parameterType = parameterTypes[j];
-                String type = parameterType.getName();
-                String typeName = toLowerFirstCase(parameterType.getSimpleName());
-                paramNames.append(type);
-
-                if (j>0&&j != (parameterTypes.length - 1)) {
-                    paramNames.append(",");
+                    if (j>0&&j != (parameterTypes.length - 1)) {
+                        paramNames.append(",");
+                    }
                 }
-            }
 
 
-            try {
-                Method method=null;
-                if(parameterTypes.length>0){
-                    sb.append("m" + i + "= Class.forName(\"" + name + "\").getMethod(\"" + methodName + "\",new Class[]{"+paramNames.toString()+".class});" + ln);
-                    method= Class.forName(name).getMethod(methodName,parameterTypes);
+                try {
+                    Method method=null;
+                    if(parameterTypes.length>0){
+                        sb.append("m" + y + "= Class.forName(\"" + name + "\").getMethod(\"" + methodName + "\",new Class[]{"+paramNames.toString()+".class});" + ln);
+                        method= Class.forName(name).getMethod(methodName,parameterTypes);
 
-                }else{
-                    sb.append("m" + i + "= Class.forName(\"" + name + "\").getMethod(\"" + methodName + "\",new Class[]{});" + ln);
-                    method = Class.forName(name).getMethod(methodName);
+                    }else{
+                        sb.append("m" + y+ "= Class.forName(\"" + name + "\").getMethod(\"" + methodName + "\",new Class[]{});" + ln);
+                        method = Class.forName(name).getMethod(methodName);
 
+                    }
+                    methodMap.put("m" + y, method);
+                    y++;
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
-                methodMap.put("m" + i, method);
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+
+
             }
 
 

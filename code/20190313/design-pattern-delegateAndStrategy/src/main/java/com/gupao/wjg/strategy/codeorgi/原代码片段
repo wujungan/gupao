@@ -1,0 +1,16 @@
+
+	  //预支付功能，不同支付能力调用不同service
+
+	         if (StringUtils.equalsIgnoreCase("alipaydirect", channel)) {//
+
+				json = wapAlipayService.prePay(vo,"create_direct_pay_by_user");
+			} else if (StringUtils.equalsIgnoreCase("weixin", channel)) {
+				json = weiPayService.prePay(vo);
+
+			}else if(StringUtils.equalsIgnoreCase("alipaywap", channel)){
+				json = wapAlipayService.prePay(vo,"alipay.wap.create.direct.pay.by.user");
+			} else if(StringUtils.equalsIgnoreCase("juhe", channel)){//聚合支付
+				json = ccbPayService.prePay(vo, "juhe");
+			}else if(StringUtils.equalsIgnoreCase("long", channel)){//龙支付
+				json = ccbPayService.prePay(vo, "long");
+			}
